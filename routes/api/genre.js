@@ -14,12 +14,12 @@ router.get("/", auth, async (req, res) => {
   var genre = await Genre.find();
   var user = req.user;
 
-  res.render("genre/index", { genre, user });
+  res.send(genre);
 });
 
 router.get("/new", auth, admin, (req, res) => {
   var user = req.user;
-  res.render("genre/new", { user });
+  res.send("genre/new", { user });
 });
 
 router.get("/:name", auth, async (req, res) => {
@@ -27,7 +27,7 @@ router.get("/:name", auth, async (req, res) => {
   var novel = await Novel.find({ genre: req.params.name });
   console.log(novel);
   var user = req.user;
-  res.render("genre/genre_stories", { novel, user });
+  res.send(novel);
 });
 
 router.post("/", auth, admin, upload.single("image"), async (req, res) => {
@@ -40,7 +40,7 @@ router.post("/", auth, admin, upload.single("image"), async (req, res) => {
   genre.cloudinary_id = result.public_id;
   await genre.save();
 
-  res.redirect("/api/novels");
+  res.send(genre);
 });
 
 router.delete("/delete/:id", auth, admin, async (req, res) => {
@@ -48,7 +48,7 @@ router.delete("/delete/:id", auth, admin, async (req, res) => {
   await cloudinary.uploader.destroy(gen.cloudinary_id);
 
   await gen.remove();
-  res.redirect("/api/novels");
+  res.send(gen);
 });
 
 router.put("/:id", auth, admin, upload.single("image"), async (req, res) => {
@@ -61,7 +61,7 @@ router.put("/:id", auth, admin, upload.single("image"), async (req, res) => {
     genre.cloudinary_id = result.public_id;
   }
   await genre.save();
-  res.redirect("/api/novels");
+  res.send(genre);
 });
 
 module.exports = router;

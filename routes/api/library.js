@@ -13,7 +13,7 @@ router.get("/", auth, async (req, res) => {
   console.log(novel);
 
   var user = req.user;
-  res.render("library/index", { library, novel, user });
+  res.send({ library, novel });
 });
 
 router.get("/add", auth, async (req, res) => {
@@ -22,7 +22,7 @@ router.get("/add", auth, async (req, res) => {
   console.log(req.query.novel_id);
   library.user_id = req.user._id;
   await library.save();
-  res.redirect("/");
+  res.send(library);
 });
 
 router.get("/delete/:id", auth, async (req, res) => {
@@ -30,7 +30,7 @@ router.get("/delete/:id", auth, async (req, res) => {
   var lib = await Library.find({ novel_id: req.params.id });
   console.log(lib);
   await Library.findByIdAndDelete(lib[0]._id);
-  res.redirect("/");
+  res.send(lib);
 });
 
 module.exports = router;

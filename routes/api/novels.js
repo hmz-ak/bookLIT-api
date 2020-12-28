@@ -5,26 +5,24 @@ const Genre = require("../../models/genre");
 const Chapter = require("../../models/chapters");
 const Library = require("../../models/library");
 const { User } = require("../../models/user");
-const multer = require("multer");
 const auth = require("../../middleware/auth");
 const upload = require("../../multer");
 const cloudinary = require("../../cloudinary");
-const fs = require("fs");
 
 //routes
 
 //get all the novels
-router.get("/", auth, async (req, res) => {
+router.get("/", async (req, res) => {
+  var randomData = await Novel.find().skip(5).limit(10);
   var novels = await Novel.find().limit(10).sort({ date: "desc" });
-  var completed = await Novel.find().limit(10);
-  var user = req.user;
-  console.log(completed);
-  res.render("novel/index", { novels, completed, user });
+  var header = await Novel.find().limit(6).sort({ date: "desc" });
+  var completed = await Novel.find().limit(15);
+  res.send({ novels, completed, randomData, header });
 });
 router.get("/new", auth, async (req, res) => {
   var genre = await Genre.find();
   var user = req.user;
-  res.render("novel/new", { genre, user });
+  res.send(genre);
 });
 //Show all the stories specific to person
 router.get("/mystories", auth, async (req, res) => {
@@ -36,23 +34,21 @@ router.get("/mystories", auth, async (req, res) => {
     novel = null;
   }
   var user = req.user;
-  res.render("novel/mystories", { novel, user });
+  res.send(novel);
 });
 
 //get a single novel
-router.get("/:id", auth, async (req, res) => {
+router.get("/:id", async (req, res) => {
+  console.log(req.params.id);
   var novel = await Novel.findById(req.params.id);
   var user_info = await User.findById(novel.user_id);
   var library = await Library.find({
-    user_id: req.user._id,
     novel_id: req.params.id,
   });
   var chapters = await Chapter.find({ novel_id: req.params.id });
-  var user = req.user;
 
-  res.render("novel/show_single", {
+  res.send({
     novel,
-    user,
     user_info,
     chapters,
     library,
@@ -75,7 +71,7 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
   try {
     await novel.save();
     console.log("here");
-    res.render("chapters/new", { novel, user });
+    res.send({ novel });
   } catch (error) {
     console.log("errorrr");
     console.log(error);
@@ -84,11 +80,11 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
 
 //delete
 
-router.get("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", auth, async (req, res) => {
   var novel = await Novel.findById(req.params.id);
   await cloudinary.uploader.destroy(novel.cloudinary_id);
   await novel.remove();
-  res.redirect("/");
+  res.send(novel);
 });
 
 //update the story
@@ -96,11 +92,11 @@ router.get("/edit/:id", async (req, res) => {
   var novel = await Novel.findById(req.params.id);
   var genre = await Genre.find();
 
-  res.render("novel/edit", { novel, genre });
+  res.send({ novel, genre });
 });
 
 //update the story
-router.post("/edit/:id", upload.single("image"), async (req, res) => {
+router.put("/update/:id", auth, upload.single("image"), async (req, res) => {
   var novel = await Novel.findById(req.params.id);
   novel.name = req.body.name;
   novel.genre = req.body.genre;
@@ -113,7 +109,7 @@ router.post("/edit/:id", upload.single("image"), async (req, res) => {
     novel.cloudinary_id = result.public_id;
   }
   await novel.save();
-  res.redirect("/");
+  res.send(novel);
 });
 
 module.exports = router;

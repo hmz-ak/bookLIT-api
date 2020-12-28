@@ -8,10 +8,9 @@ const upload = require("../../multer");
 const cloudinary = require("../../cloudinary");
 const fs = require("fs");
 
-router.get("/", auth, async (req, res) => {
+router.get("/", async (req, res) => {
   var chapter = await Chapter.find();
-  var user = req.user;
-  res.render("chapters/index", { chapter, user });
+  res.send(chapter);
 });
 
 router.get("/new/:id", auth, (req, res) => {
@@ -21,14 +20,14 @@ router.get("/new/:id", auth, (req, res) => {
   };
   console.log(novel_id);
   user = req.user;
-  res.render("chapters/new", { novel, user });
+  res.send(novel);
 });
 
 //get a single chapter
 router.get("/:id", auth, async (req, res) => {
   var chapter = await Chapter.findById(req.params.id);
   var user = req.user;
-  res.render("chapters/index", { chapter, user });
+  res.send({ chapter });
 });
 
 //create a new chapter
@@ -46,26 +45,26 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
 
   try {
     await chapter.save();
-    res.redirect("/");
+    res.send(chapter);
   } catch (error) {}
 });
 
 //delete
-router.get("/delete/:id", auth, async (req, res) => {
+router.delete("/delete/:id", auth, async (req, res) => {
   var chap = await Chapter.findById(req.params.id);
   await cloudinary.uploader.destroy(chap.cloudinary_id);
 
   await chap.remove();
-  res.redirect("/");
+  res.send(chap);
 });
 
 router.get("/edit/:id", auth, async (req, res) => {
   var chapter = await Chapter.findById(req.params.id);
   user = req.user;
-  res.render("chapters/edit", { chapter, user });
+  res.send(chapter);
 });
 //update chapter
-router.post("/update/:id", auth, upload.single("image"), async (req, res) => {
+router.put("/update/:id", auth, upload.single("image"), async (req, res) => {
   console.log("here i am");
   var chapter = await Chapter.findById(req.params.id);
 
@@ -81,7 +80,7 @@ router.post("/update/:id", auth, upload.single("image"), async (req, res) => {
 
   try {
     await chapter.save();
-    res.redirect("/");
+    res.send(chapter);
   } catch (error) {}
 });
 
