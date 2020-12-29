@@ -32,16 +32,27 @@ router.get("/:id", auth, async (req, res) => {
 
 //create a new chapter
 router.post("/", auth, upload.single("image"), async (req, res) => {
-  const result = await cloudinary.uploader.upload(req.file.path);
+  if (req.file) {
+    const result = await cloudinary.uploader.upload(req.file.path);
 
-  var chapter = new Chapter();
+    var chapter = new Chapter();
 
-  chapter.user_id = req.user._id;
-  chapter.novel_id = req.body.novel_id;
-  chapter.title = req.body.title;
-  chapter.content = req.body.content;
-  chapter.image = result.secure_url;
-  chapter.cloudinary_id = result.public_id;
+    chapter.user_id = req.user._id;
+    chapter.novel_id = req.body.novel_id;
+    chapter.title = req.body.title;
+    chapter.content = req.body.content;
+    chapter.image = result.secure_url;
+    chapter.cloudinary_id = result.public_id;
+  } else {
+    var chapter = new Chapter();
+
+    chapter.user_id = req.user._id;
+    chapter.novel_id = req.body.novel_id;
+    chapter.title = req.body.title;
+    chapter.content = req.body.content;
+    chapter.image =
+      "https://cel.ac/wp-content/uploads/2016/02/placeholder-img-1.jpg";
+  }
 
   try {
     await chapter.save();
@@ -72,7 +83,9 @@ router.put("/update/:id", auth, upload.single("image"), async (req, res) => {
   chapter.content = req.body.content;
   if (req.file) {
     console.log("not here");
-    await cloudinary.uploader.destroy(chapter.cloudinary_id);
+    if (chapter.cloudinary_id) {
+      await cloudinary.uploader.destroy(chapter.cloudinary_id);
+    }
     const result = await cloudinary.uploader.upload(req.file.path);
     chapter.image = result.secure_url;
     chapter.cloudinary_id = result.public_id;
