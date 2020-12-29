@@ -10,9 +10,7 @@ const cloudinary = require("../../cloudinary");
 const fs = require("fs");
 
 router.get("/", auth, async (req, res) => {
-  console.log(req.user);
   var genre = await Genre.find();
-  var user = req.user;
 
   res.send(genre);
 });

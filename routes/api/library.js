@@ -16,16 +16,15 @@ router.get("/", auth, async (req, res) => {
   res.send({ library, novel });
 });
 
-router.get("/add", auth, async (req, res) => {
+router.post("/", auth, async (req, res) => {
   var library = new Library();
-  library.novel_id = req.query.novel_id;
-  console.log(req.query.novel_id);
+  library.novel_id = req.body._id;
   library.user_id = req.user._id;
   await library.save();
   res.send(library);
 });
 
-router.get("/delete/:id", auth, async (req, res) => {
+router.delete("/delete/:id", auth, async (req, res) => {
   console.log("im here!");
   var lib = await Library.find({ novel_id: req.params.id });
   console.log(lib);

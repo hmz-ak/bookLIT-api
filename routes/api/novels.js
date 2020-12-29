@@ -34,7 +34,7 @@ router.get("/mystories", auth, async (req, res) => {
     novel = null;
   }
   var user = req.user;
-  res.send(novel);
+  res.send({ novel });
 });
 
 //get a single novel
