@@ -57,24 +57,28 @@ router.get("/:id", async (req, res) => {
 
 //create a new novel
 router.post("/", auth, upload.single("image"), async (req, res) => {
-  const result = await cloudinary.uploader.upload(req.file.path);
+  if (!req.file) {
+    res.status(400).send("You Must Add An Image");
+  } else {
+    const result = await cloudinary.uploader.upload(req.file.path);
 
-  var novel = new Novel();
-  novel.user_id = req.user._id;
-  novel.name = req.body.name;
-  novel.genre = req.body.genre;
-  novel.theme = req.body.theme;
-  novel.image = result.secure_url;
-  novel.cloudinary_id = result.public_id;
-  user = req.user;
+    var novel = new Novel();
+    novel.user_id = req.user._id;
+    novel.name = req.body.name;
+    novel.genre = req.body.genre;
+    novel.theme = req.body.theme;
+    novel.image = result.secure_url;
+    novel.cloudinary_id = result.public_id;
+    user = req.user;
 
-  try {
-    await novel.save();
-    console.log("here");
-    res.send({ novel });
-  } catch (error) {
-    console.log("errorrr");
-    console.log(error);
+    try {
+      await novel.save();
+      console.log("here");
+      res.send({ novel });
+    } catch (error) {
+      console.log("errorrr");
+      console.log(error);
+    }
   }
 });
 
