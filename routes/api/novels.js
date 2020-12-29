@@ -112,7 +112,10 @@ router.put("/update/:id", auth, upload.single("image"), async (req, res) => {
   novel.genre = req.body.genre;
   novel.theme = req.body.theme;
   if (req.file) {
-    await cloudinary.uploader.destroy(novel.cloudinary_id);
+    const img = await cloudinary.uploader.find(novel.cloudinary_id);
+    if (img) {
+      await cloudinary.uploader.destroy(novel.cloudinary_id);
+    }
     const result = await cloudinary.uploader.upload(req.file.path);
 
     novel.image = result.secure_url;
