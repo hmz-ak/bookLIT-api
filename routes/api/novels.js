@@ -38,11 +38,12 @@ router.get("/mystories", auth, async (req, res) => {
 });
 
 //get a single novel
-router.get("/:id", async (req, res) => {
+router.get("/:id", auth, async (req, res) => {
   console.log(req.params.id);
   var novel = await Novel.findById(req.params.id);
   var user_info = await User.findById(novel.user_id);
   var library = await Library.find({
+    user_id: req.user._id,
     novel_id: req.params.id,
   });
   var chapters = await Chapter.find({ novel_id: req.params.id });
