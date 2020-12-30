@@ -63,7 +63,9 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
 //delete
 router.delete("/delete/:id", auth, async (req, res) => {
   var chap = await Chapter.findById(req.params.id);
-  await cloudinary.uploader.destroy(chap.cloudinary_id);
+  if (chapter.cloudinary_id) {
+    await cloudinary.uploader.destroy(chap.cloudinary_id);
+  }
 
   await chap.remove();
   res.send(chap);

@@ -34,7 +34,7 @@ router.get("/mystories", auth, async (req, res) => {
     novel = null;
   }
   var user = req.user;
-  res.send({ novel });
+  res.send(novel);
 });
 
 //get a single novel
@@ -91,9 +91,19 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
 //delete
 
 router.delete("/delete/:id", auth, async (req, res) => {
-  var novel = await Novel.findById(req.params.id);
-  await cloudinary.uploader.destroy(novel.cloudinary_id);
-  await novel.remove();
+  console.log(req.params.id);
+  console.log("here");
+  try {
+    var novel = await Novel.findById(req.params.id);
+    console.log(novel);
+    if (novel.cloudinary_id) {
+      await cloudinary.uploader.destroy(novel.cloudinary_id);
+    }
+    await novel.remove();
+  } catch (error) {
+    console.log(err);
+  }
+
   res.send(novel);
 });
 
