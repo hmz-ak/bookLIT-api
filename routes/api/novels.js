@@ -92,17 +92,23 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
 //delete
 
 router.delete("/delete/:id", auth, async (req, res) => {
-  console.log(req.params.id);
-  console.log("here");
-  try {
-    var novel = await Novel.findById(req.params.id);
-    console.log(novel);
-    if (novel.cloudinary_id) {
-      await cloudinary.uploader.destroy(novel.cloudinary_id);
+  var novel = await Novel.findById(req.params.id);
+  var library = await Library.find({ novel_id: req.params.id });
+  var chapters = await Chapter.find({ novel_id: req.params.id });
+  console.log(novel);
+  if (novel.cloudinary_id) {
+    await cloudinary.uploader.destroy(novel.cloudinary_id);
+  }
+  await novel.remove();
+  if (!library.length == 0) {
+    for (var i = 0; i < library.length; i++) {
+      await library[i].remove();
     }
-    await novel.remove();
-  } catch (error) {
-    console.log(err);
+  }
+  if (!chapters.length == 0) {
+    for (var i = 0; i < chapters.length; i++) {
+      await chapters[i].remove();
+    }
   }
 
   res.send(novel);
