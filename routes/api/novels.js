@@ -65,6 +65,8 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
     novel.name = req.body.name;
     novel.genre = req.body.genre;
     novel.theme = req.body.theme;
+    novel.paid = req.body.paid;
+    novel.price = req.body.price;
     novel.image = result.secure_url;
     novel.cloudinary_id = result.public_id;
     user = req.user;
@@ -74,6 +76,8 @@ router.post("/", auth, upload.single("image"), async (req, res) => {
     novel.name = req.body.name;
     novel.genre = req.body.genre;
     novel.theme = req.body.theme;
+    novel.paid = req.body.paid;
+    novel.price = req.body.price;
     novel.image =
       "https://cel.ac/wp-content/uploads/2016/02/placeholder-img-1.jpg";
     user = req.user;
@@ -95,7 +99,7 @@ router.delete("/delete/:id", auth, async (req, res) => {
   var novel = await Novel.findById(req.params.id);
   var library = await Library.find({ novel_id: req.params.id });
   var chapters = await Chapter.find({ novel_id: req.params.id });
-  console.log(novel);
+  // console.log(novel);
   if (novel.cloudinary_id) {
     await cloudinary.uploader.destroy(novel.cloudinary_id);
   }
@@ -128,6 +132,15 @@ router.put("/update/:id", auth, upload.single("image"), async (req, res) => {
   novel.name = req.body.name;
   novel.genre = req.body.genre;
   novel.theme = req.body.theme;
+  novel.paid = req.body.paid;
+
+  if (novel.price != null && novel.paid != false) {
+    novel.price = req.body.price;
+  } else {
+    novel.price = 0;
+  }
+  console.log(req.body.paid);
+  console.log(req.body.price);
   if (req.file) {
     if (novel.cloudinary_id) {
       await cloudinary.uploader.destroy(novel.cloudinary_id);

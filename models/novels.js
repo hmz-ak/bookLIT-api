@@ -10,6 +10,11 @@ var novelSchema = mongoose.Schema({
   name: String,
   genre: String,
   theme: String,
+  paid: Boolean,
+  price: {
+    type: Number,
+    default: 0,
+  },
   date: { type: Date, default: Date.now },
   image: {
     type: String,
